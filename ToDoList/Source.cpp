@@ -1,12 +1,53 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 struct Task {
 	std::string name;
 	std::string description;
 	bool isDone;
 };
+
+void loadTasks(std::vector<Task>& tasks) {
+	std::ifstream file("tasks.json");
+	if (file.is_open()) {
+		json jsonData;
+		file >> jsonData;
+		for (const auto& task : jsonData) {
+			tasks.push_back({ 
+				task["name"], 
+				task["description"], 
+				task["isDone"] });
+		}
+	}
+	else {
+		std::cerr << "Failed to open the file." << std::endl;
+	}
+}
+
+void saveTasks(const std::vector<Task>& tasks) {
+	json jsonData;
+	for (const Task& task : tasks) {
+		jsonData.push_back({
+			{"name", task.name},
+			{"description", task.description},
+			{"isDone", task.isDone}
+			});
+	}
+	std::ofstream file("tasks.json");
+	if (file.is_open()) {
+		file << jsonData.dump(4);
+		file.close();
+		std::cout << "Tasks saved succesfuly." << std::endl;
+	}
+	else {
+		std::cerr << "Failed to open the file." << std::endl;
+	}
+}
 
 void addTask(std::vector<Task>& tasks) {
 	Task newTask;
@@ -67,11 +108,14 @@ void printHelp() {
 		<< "3 to mark/unmark a task as done" << std::endl
 		<< "4 to read task description" << std::endl
 		<< "5 to exit" << std::endl
-		<< "6 to help" << std::endl;
+		<< "6 to help" << std::endl
+		<< "7 to save the tasks to a file" << std::endl;
 }
 
 int main() {
 	std::vector<Task> tasks;
+	loadTasks(tasks);
+
 	std::cout << "Welcome to the To-Do List" << std::endl
 		<< "0 to add a task" << std::endl
 		<< "1 to delete a task" << std::endl
@@ -79,7 +123,8 @@ int main() {
 		<< "3 to mark/unmark a task as done" << std::endl
 		<< "4 to read task description" << std::endl
 		<< "5 to exit" << std::endl
-		<< "6 to help" << std::endl;
+		<< "6 to help" << std::endl
+		<< "7 to save the tasks to a file" << std::endl;
 
 	int choice;
 	while (true) {
@@ -101,9 +146,13 @@ int main() {
 			readTaskDescription(tasks);
 			break;
 		case 5:
+			saveTasks(tasks);
 			return 0;
 		case 6:
 			printHelp();
+			break;
+		case 7:
+			saveTasks(tasks);
 			break;
 		}
 	}
