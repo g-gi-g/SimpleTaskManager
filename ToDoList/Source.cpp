@@ -11,9 +11,10 @@ struct Task {
 void addTask(std::vector<Task>& tasks) {
 	Task newTask;
 	std::cout << "Task name: ";
-	std::cin >> newTask.name;
+	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	std::getline(std::cin, newTask.name);
 	std::cout << "Task description: ";
-	std::cin >> newTask.description;
+	std::getline(std::cin, newTask.description);
 	newTask.isDone = false;
 	tasks.push_back(newTask);
 }
@@ -22,6 +23,11 @@ void deleteTask(std::vector<Task>& tasks) {
 	int choice;
 	std::cout << "Choose a task to delete: ";
 	std::cin >> choice;
+	if (choice >= tasks.size() || choice < 0)
+	{
+		std::cout << "Invalid choice" << std::endl;
+		return;
+	}
 	tasks.erase(tasks.begin() + choice);
 }
 
@@ -34,6 +40,11 @@ void markTask(std::vector<Task>& tasks) {
 	int choice;
 	std::cout << "Choose a task to mark/unmark: ";
 	std::cin >> choice;
+	if (choice >= tasks.size() || choice < 0)
+	{
+		std::cout << "Invalid choice" << std::endl;
+		return;
+	}
 	tasks[choice].isDone = !tasks[choice].isDone;
 }
 
@@ -41,6 +52,11 @@ void readTaskDescription(const std::vector<Task>& tasks) {
 	int choice; 
 	std::cout << "Choose a task for description: ";
 	std::cin >> choice;
+	if (choice >= tasks.size() || choice < 0)
+	{
+		std::cout << "Invalid choice" << std::endl;
+		return;
+	}
 	std::cout << tasks[choice].description << std::endl;
 }
 
@@ -88,6 +104,7 @@ int main() {
 			return 0;
 		case 6:
 			printHelp();
+			break;
 		}
 	}
 }
